@@ -36,7 +36,7 @@
  */
 
 // Change EEPROM version if the structure changes
-#define EEPROM_VERSION "V88"
+#define EEPROM_VERSION "V89"
 #define EEPROM_OFFSET 100
 
 // Check the integrity of data offsets.
@@ -52,6 +52,9 @@
 #include "temperature.h"
 
 #include "../lcd/marlinui.h"
+#if HAS_MARLINUI_U8GLIB
+  #include "../lcd/dogm/ui_theme.h"
+#endif
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
 #include "../MarlinCore.h"
@@ -405,6 +408,11 @@ typedef struct SettingsDataStruct {
   // HAS_LCD_BRIGHTNESS
   //
   uint8_t lcd_brightness;                               // M256 B
+
+  //
+  // HAS_MARLINUI_U8GLIB
+  //
+  uint8_t ui_theme_index;                               // LCD UI theme (Configuration > UI Theme)
 
   //
   // Display Sleep
@@ -1190,6 +1198,15 @@ void MarlinSettings::postprocess() {
       _FIELD_TEST(lcd_brightness);
       const uint8_t lcd_brightness = TERN(HAS_LCD_BRIGHTNESS, ui.brightness, 255);
       EEPROM_WRITE(lcd_brightness);
+    }
+
+    //
+    // LCD UI Theme
+    //
+    {
+      _FIELD_TEST(ui_theme_index);
+      const uint8_t ui_theme_index = TERN(HAS_MARLINUI_U8GLIB, ui.theme_index, 0);
+      EEPROM_WRITE(ui_theme_index);
     }
 
     //
@@ -2207,6 +2224,16 @@ void MarlinSettings::postprocess() {
         _FIELD_TEST(lcd_brightness);
         EEPROM_READ(lcd_brightness);
         TERN_(HAS_LCD_BRIGHTNESS, if (!validating) ui.brightness = lcd_brightness);
+      }
+
+      //
+      // LCD UI Theme
+      //
+      {
+        uint8_t ui_theme_index;
+        _FIELD_TEST(ui_theme_index);
+        EEPROM_READ(ui_theme_index);
+        TERN_(HAS_MARLINUI_U8GLIB, if (!validating) ui.theme_index = _MIN(ui_theme_index, uint8_t(UI_THEME_INDEX_COUNT - 1)));
       }
 
       //
@@ -3337,6 +3364,11 @@ void MarlinSettings::reset() {
   // LCD Brightness
   //
   TERN_(HAS_LCD_BRIGHTNESS, ui.brightness = LCD_BRIGHTNESS_DEFAULT);
+
+  //
+  // LCD UI Theme
+  //
+  TERN_(HAS_MARLINUI_U8GLIB, ui.theme_index = 0); // UI_THEME_STOCK, non-inverted
 
   //
   // LCD Backlight / Sleep Timeout

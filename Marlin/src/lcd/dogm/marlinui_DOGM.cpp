@@ -129,7 +129,7 @@ bool MarlinUI::detected() { return true; }
           const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&custom_bootscreen_animation[frame]);
         #endif
       #else
-        const u8g_pgm_uint8_t * const bmp = custom_start_bmp;
+        const u8g_pgm_uint8_t * const bmp = (u8g_pgm_uint8_t*)pgm_read_ptr(&ui_theme_bootscreen_bmp[theme_index]);
       #endif
 
       UNUSED(frame);
@@ -245,7 +245,11 @@ bool MarlinUI::detected() { return true; }
   }
 
   void MarlinUI::show_bootscreen() {
-    TERN_(SHOW_CUSTOM_BOOTSCREEN, show_custom_bootscreen());
+    #if ENABLED(SHOW_CUSTOM_BOOTSCREEN)
+      // Stock theme keeps today's exact boot behavior (Marlin's own logo
+      // only, no delay for a custom bitmap) -- only Reskin/Layout2 show one.
+      if (ui_theme_id(theme_index) != UI_THEME_STOCK) show_custom_bootscreen();
+    #endif
     show_marlin_bootscreen();
   }
 
@@ -390,17 +394,36 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
 
     if (!PAGE_CONTAINS(row_y1 + 1, row_y2 + 2)) return false;
 
+    // The UI_THEME_LAYOUT2 theme always uses the solid inverted-box cursor
+    // (a bolder, more "modern app selection" look) regardless of the
+    // MENU_HOLLOW_FRAME build option; Stock/Reskin keep whichever style
+    // MENU_HOLLOW_FRAME selects, unchanged from before the theme system.
+    #if HAS_MARLINUI_U8GLIB
+      const bool use_solid_cursor = ui_theme_id(ui.theme_index) == UI_THEME_LAYOUT2;
+    #else
+      constexpr bool use_solid_cursor = false;
+    #endif
+
     if (sel) {
       #if ENABLED(MENU_HOLLOW_FRAME)
-        u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
-        u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
+        if (use_solid_cursor) {
+          u8g.setColorIndex(1); // solid outline
+          u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
+          u8g.setColorIndex(0); // inverted text
+        }
+        else {
+          u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
+          u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
+        }
       #else
         u8g.setColorIndex(1); // solid outline
         u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
         u8g.setColorIndex(0); // inverted text
       #endif
     }
-    #if DISABLED(MENU_HOLLOW_FRAME)
+    #if ENABLED(MENU_HOLLOW_FRAME)
+      else if (use_solid_cursor) u8g.setColorIndex(1); // solid text
+    #else
       else u8g.setColorIndex(1); // solid text
     #endif
 

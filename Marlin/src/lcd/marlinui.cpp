@@ -122,6 +122,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   }
 #endif
 
+#if HAS_MARLINUI_U8GLIB
+  uint8_t MarlinUI::theme_index = 0; // UI_THEME_STOCK; overwritten by settings.load()
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   bool MarlinUI::sound_on = ENABLED(SOUND_ON_DEFAULT);
 #endif

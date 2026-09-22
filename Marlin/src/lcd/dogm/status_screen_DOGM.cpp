@@ -257,7 +257,9 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
         #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr(&status_hotend_gfx[(N) % (STATUS_HOTEND_BITMAPS)])
       #endif
     #elif ANIM_HOTEND
-      #define HOTEND_BITMAP(N,S) ((S) ? ON_BMP() : OFF_BMP())
+      // This whole file only compiles under HAS_MARLINUI_U8GLIB, so the
+      // theme tables from ui_theme.h are always available here.
+      #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr((S) ? &ui_theme_hotend_on_bmp[ui.theme_index] : &ui_theme_hotend_off_bmp[ui.theme_index])
     #else
       #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
     #endif
@@ -273,11 +275,13 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
         uint8_t tall = uint8_t(perc * BAR_TALL + 0.5f);
         NOMORE(tall, BAR_TALL);
 
-        // Draw hotend bitmap, either whole or split by the heating percent
+        // Draw hotend bitmap, either whole or split by the heating percent.
+        // The heat-percent fill bar is a UI_THEME_LAYOUT2-only composition;
+        // Stock/Reskin always draw the plain on/off icon, unchanged.
         const uint8_t hx = STATUS_HOTEND_X(heater_id),
                       bw = STATUS_HOTEND_BYTEWIDTH(heater_id);
         #if ENABLED(STATUS_HEAT_PERCENT)
-          if (isHeat && tall <= BAR_TALL) {
+          if (isHeat && tall <= BAR_TALL && ui_theme_id(ui.theme_index) == UI_THEME_LAYOUT2) {
             const uint8_t ph = STATUS_HEATERS_HEIGHT - 1 - tall;
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y, bw, ph, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), false));
             u8g.drawBitmapP(hx, STATUS_HEATERS_Y + ph, bw, tall + 1, HOTEND_BITMAP(TERN(HAS_MMU, active_extruder, heater_id), true) + ph * bw);
@@ -562,7 +566,8 @@ void MarlinUI::draw_status_screen() {
 
   #if DO_DRAW_LOGO
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
-      u8g.drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT, status_logo_bmp);
+      u8g.drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT,
+                       (unsigned char*)pgm_read_ptr(&ui_theme_status_logo_bmp[ui.theme_index]));
   #endif
 
   #if STATUS_HEATERS_WIDTH
@@ -590,7 +595,7 @@ void MarlinUI::draw_status_screen() {
           ? (planner.leveling_active ? status_bed_leveled_on_bmp : status_bed_on_bmp) \
           : (planner.leveling_active ? status_bed_leveled_bmp : status_bed_bmp))
       #else
-        #define BED_BITMAP(S) ((S) ? status_bed_on_bmp : status_bed_bmp)
+        #define BED_BITMAP(S) (unsigned char*)pgm_read_ptr((S) ? &ui_theme_bed_on_bmp[ui.theme_index] : &ui_theme_bed_off_bmp[ui.theme_index])
       #endif
     #else
       #define BED_BITMAP(S) status_bed_bmp
@@ -632,10 +637,13 @@ void MarlinUI::draw_status_screen() {
           #if STATUS_FAN_FRAMES > 3
             fan_frame == 3 ? status_fan3_bmp :
           #endif
+          status_fan0_bmp
         #elif STATUS_FAN_FRAMES > 1
-          blink && thermalManager.fan_speed[0] ? status_fan1_bmp :
+          (unsigned char*)pgm_read_ptr(
+            (blink && thermalManager.fan_speed[0]) ? &ui_theme_fan1_bmp[ui.theme_index] : &ui_theme_fan0_bmp[ui.theme_index])
+        #else
+          status_fan0_bmp
         #endif
-        status_fan0_bmp
       );
   #endif
 

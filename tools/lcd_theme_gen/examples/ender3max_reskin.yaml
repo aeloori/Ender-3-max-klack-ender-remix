@@ -1,0 +1,58 @@
+theme:
+  name: reskin
+
+output:
+  dir: "../../../Marlin/src/lcd/dogm/theme_assets"
+  filename: "ui_theme_reskin.h"
+  license_header: marlin
+
+reference_dims:
+  bootscreen: [81, 58]
+  status_logo: [39, 7]
+  hotend.off: [16, 12]
+  hotend.on: [16, 12]
+  bed.off: [21, 2]
+  bed.on: [21, 12]
+  fan.frame0: [20, 18]
+  fan.frame1: [20, 18]
+
+assets:
+  - key: bootscreen
+    source: art/reskin_boot.png
+    generate_inverted: true
+    var_name: theme_reskin_bootscreen_bmp
+
+  - key: status_logo
+    source: art/reskin_status_logo.png
+    generate_inverted: true
+    var_name: theme_reskin_status_logo_bmp
+
+  - key: hotend.off
+    source: art/reskin_hotend_off.png
+    generate_inverted: true
+    var_name: theme_reskin_hotend_off_bmp
+
+  - key: hotend.on
+    source: art/reskin_hotend_on.png
+    generate_inverted: true
+    var_name: theme_reskin_hotend_on_bmp
+
+  - key: bed.off
+    source: art/reskin_bed_off.png
+    generate_inverted: true
+    var_name: theme_reskin_bed_off_bmp
+
+  - key: bed.on
+    source: art/reskin_bed_on.png
+    generate_inverted: true
+    var_name: theme_reskin_bed_on_bmp
+
+  - key: fan.frame0
+    source: art/reskin_fan_frame0.png
+    generate_inverted: true
+    var_name: theme_reskin_fan0_bmp
+
+  - key: fan.frame1
+    source: art/reskin_fan_frame1.png
+    generate_inverted: true
+    var_name: theme_reskin_fan1_bmp

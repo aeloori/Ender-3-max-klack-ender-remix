@@ -1,0 +1,64 @@
+theme:
+  name: stock_inverted
+
+output:
+  dir: "../../../Marlin/src/lcd/dogm/theme_assets"
+  filename: "ui_theme_stock_inverted_unused.h"   # no `assets` below, this file won't be written
+  license_header: marlin
+
+invert_only_filename: "ui_theme_stock_inverted.h"
+
+reference_dims:
+  bootscreen: [81, 58]
+  status_logo: [39, 7]
+  hotend.off: [16, 12]
+  hotend.on: [16, 12]
+  bed.off: [21, 2]
+  bed.on: [21, 12]
+  fan.frame0: [20, 18]
+  fan.frame1: [20, 18]
+
+invert_only:
+  - key: bootscreen
+    source_header: "../../../Marlin/_Bootscreen.h"
+    array_name: custom_start_bmp
+    var_name: theme_stock_bootscreen_bmp_inv
+
+  - key: status_logo
+    source_header: "../../../Marlin/_Statusscreen.h"
+    array_name: status_logo_bmp
+    var_name: theme_stock_status_logo_bmp_inv
+
+  - key: hotend.off
+    source_header: "../../../Marlin/src/lcd/dogm/status/hotend.h"
+    array_name: status_hotend_a_bmp
+    var_name: theme_stock_hotend_off_bmp_inv
+
+  - key: hotend.on
+    source_header: "../../../Marlin/src/lcd/dogm/status/hotend.h"
+    array_name: status_hotend_b_bmp
+    var_name: theme_stock_hotend_on_bmp_inv
+
+  - key: bed.off
+    source_header: "../../../Marlin/src/lcd/dogm/status/bed.h"
+    array_name: status_bed_bmp
+    occurrence: 1   # 0=STATUS_ALT_BED_BITMAP branch (unused), 1=STATUS_BED_ANIM branch (active)
+    var_name: theme_stock_bed_off_bmp_inv
+
+  - key: bed.on
+    source_header: "../../../Marlin/src/lcd/dogm/status/bed.h"
+    array_name: status_bed_on_bmp
+    occurrence: 1
+    var_name: theme_stock_bed_on_bmp_inv
+
+  - key: fan.frame0
+    source_header: "../../../Marlin/src/lcd/dogm/status/fan.h"
+    array_name: status_fan0_bmp
+    occurrence: 1   # 0=STATUS_ALT_FAN_BITMAP branch (unused), 1=default STATUS_FAN_FRAMES<=2 branch (active)
+    var_name: theme_stock_fan0_bmp_inv
+
+  - key: fan.frame1
+    source_header: "../../../Marlin/src/lcd/dogm/status/fan.h"
+    array_name: status_fan1_bmp
+    occurrence: 1
+    var_name: theme_stock_fan1_bmp_inv

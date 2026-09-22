@@ -468,6 +468,16 @@ void menu_advanced_settings();
 
 #endif // CUSTOM_MENU_CONFIG
 
+#if HAS_MARLINUI_U8GLIB
+  void menu_ui_theme() {
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+    EDIT_ITEM_FAST(uint8, MSG_UI_THEME, &ui.theme_index, 0, UI_THEME_INDEX_COUNT - 1, ui.refresh_theme, true);
+    STATIC_ITEM_F(F(""), SS_CENTER, ui_theme_names[ui.theme_index]);
+    END_MENU();
+  }
+#endif
+
 void menu_configuration() {
   const bool busy = printer_busy();
 
@@ -543,6 +553,9 @@ void menu_configuration() {
   #endif
   #if HAS_LCD_CONTRAST && LCD_CONTRAST_MIN < LCD_CONTRAST_MAX
     EDIT_ITEM_FAST(uint8, MSG_CONTRAST, &ui.contrast, LCD_CONTRAST_MIN, LCD_CONTRAST_MAX, ui.refresh_contrast, true);
+  #endif
+  #if HAS_MARLINUI_U8GLIB
+    SUBMENU(MSG_UI_THEME, menu_ui_theme);
   #endif
 
   //

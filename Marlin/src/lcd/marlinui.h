@@ -35,6 +35,10 @@
   #include "tft_io/touch_calibration.h"
 #endif
 
+#if HAS_MARLINUI_U8GLIB
+  #include "dogm/ui_theme.h"
+#endif
+
 #if E_MANUAL > 1
   #define MULTI_E_MANUAL 1
 #endif
@@ -468,6 +472,11 @@ public:
         static void _set_contrast(); // Implementation-specific
         static void set_contrast(const uint8_t value);
         FORCE_INLINE static void refresh_contrast() { set_contrast(contrast); }
+      #endif
+
+      #if HAS_MARLINUI_U8GLIB
+        static uint8_t theme_index; // 0..UI_THEME_INDEX_COUNT-1, see lcd/dogm/ui_theme.h
+        FORCE_INLINE static void refresh_theme() { refresh(LCDVIEW_CALL_REDRAW_NEXT); }
       #endif
 
       #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)

@@ -1,0 +1,45 @@
+theme:
+  name: mainmenu_grid
+
+output:
+  dir: "../../../Marlin/src/lcd/dogm/theme_assets"
+  filename: "ui_theme_mainmenu_grid.h"
+  license_header: marlin
+
+reference_dims:
+  grid.home: [20, 18]
+  grid.print: [20, 18]
+  grid.motion: [20, 18]
+  grid.filament: [20, 18]
+  grid.temp: [20, 18]
+  grid.config: [20, 18]
+  grid.info: [20, 18]
+
+assets:
+  - key: grid.home
+    source: art/grid_home.png
+    var_name: grid_icon_home_bmp
+
+  - key: grid.print
+    source: art/grid_print.png
+    var_name: grid_icon_print_bmp
+
+  - key: grid.motion
+    source: art/grid_motion.png
+    var_name: grid_icon_motion_bmp
+
+  - key: grid.filament
+    source: art/grid_filament.png
+    var_name: grid_icon_filament_bmp
+
+  - key: grid.temp
+    source: art/grid_temp.png
+    var_name: grid_icon_temp_bmp
+
+  - key: grid.config
+    source: art/grid_config.png
+    var_name: grid_icon_config_bmp
+
+  - key: grid.info
+    source: art/grid_info.png
+    var_name: grid_icon_info_bmp

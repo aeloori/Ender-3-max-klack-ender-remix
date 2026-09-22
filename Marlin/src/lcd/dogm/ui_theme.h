@@ -42,6 +42,14 @@ enum UIThemeID : uint8_t {
 FORCE_INLINE uint8_t ui_theme_id(uint8_t index)       { return index / UI_THEME_VARIANTS; }
 FORCE_INLINE bool    ui_theme_inverted(uint8_t index) { return index % UI_THEME_VARIANTS; }
 
+// Bitmap draws always use the non-inverted table slot for a theme; the dark
+// variant is produced at render time by MarlinUI::theme_color() (flips the
+// draw pen) plus a full-page background fill, not by swapping bitmap bytes --
+// drawBitmapP only ever paints "1" bits, so it can't punch a real background
+// color through on its own. The _inv columns in the tables below still exist
+// (from the generator) but are unused by any current draw site.
+FORCE_INLINE uint8_t ui_theme_base_index(uint8_t index) { return ui_theme_id(index) * UI_THEME_VARIANTS; }
+
 // Human-readable names for the theme-picker menu, indexed by the same 0..5 value.
 extern const char* const ui_theme_names[UI_THEME_INDEX_COUNT];
 
@@ -56,3 +64,14 @@ extern const u8g_pgm_uint8_t* const ui_theme_bed_off_bmp[UI_THEME_INDEX_COUNT];
 extern const u8g_pgm_uint8_t* const ui_theme_bed_on_bmp[UI_THEME_INDEX_COUNT];
 extern const u8g_pgm_uint8_t* const ui_theme_fan0_bmp[UI_THEME_INDEX_COUNT];
 extern const u8g_pgm_uint8_t* const ui_theme_fan1_bmp[UI_THEME_INDEX_COUNT];
+
+// Main Menu grid-navigation icons (Reskin/Layout2 themes only), all 20x18.
+#define UI_GRID_ICON_WIDTH  20
+#define UI_GRID_ICON_HEIGHT 18
+extern const unsigned char grid_icon_home_bmp[];
+extern const unsigned char grid_icon_print_bmp[];
+extern const unsigned char grid_icon_motion_bmp[];
+extern const unsigned char grid_icon_filament_bmp[];
+extern const unsigned char grid_icon_temp_bmp[];
+extern const unsigned char grid_icon_config_bmp[];
+extern const unsigned char grid_icon_info_bmp[];

@@ -477,6 +477,13 @@ public:
       #if HAS_MARLINUI_U8GLIB
         static uint8_t theme_index; // 0..UI_THEME_INDEX_COUNT-1, see lcd/dogm/ui_theme.h
         FORCE_INLINE static void refresh_theme() { refresh(LCDVIEW_CALL_REDRAW_NEXT); }
+
+        // logical_ink: 0=background/clear, 1=ink/foreground. Flips the physical
+        // colorIndex when the theme is inverted; pairs with the full-page fill
+        // in marlinui.cpp's page loop.
+        FORCE_INLINE static uint8_t theme_color(const uint8_t logical_ink) {
+          return ui_theme_inverted(theme_index) ? uint8_t(1 - logical_ink) : logical_ink;
+        }
       #endif
 
       #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)

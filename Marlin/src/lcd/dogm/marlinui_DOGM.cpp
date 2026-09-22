@@ -407,24 +407,24 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     if (sel) {
       #if ENABLED(MENU_HOLLOW_FRAME)
         if (use_solid_cursor) {
-          u8g.setColorIndex(1); // solid outline
+          u8g.setColorIndex(ui.theme_color(1)); // solid outline
           u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
-          u8g.setColorIndex(0); // inverted text
+          u8g.setColorIndex(ui.theme_color(0)); // inverted text
         }
         else {
           u8g.drawHLine(0, row_y1 + 1, LCD_PIXEL_WIDTH);
           u8g.drawHLine(0, row_y2 + 2, LCD_PIXEL_WIDTH);
         }
       #else
-        u8g.setColorIndex(1); // solid outline
+        u8g.setColorIndex(ui.theme_color(1)); // solid outline
         u8g.drawBox(0, row_y1 + 2, LCD_PIXEL_WIDTH, MENU_FONT_HEIGHT - 1);
-        u8g.setColorIndex(0); // inverted text
+        u8g.setColorIndex(ui.theme_color(0)); // inverted text
       #endif
     }
     #if ENABLED(MENU_HOLLOW_FRAME)
-      else if (use_solid_cursor) u8g.setColorIndex(1); // solid text
+      else if (use_solid_cursor) u8g.setColorIndex(ui.theme_color(1)); // solid text
     #else
-      else u8g.setColorIndex(1); // solid text
+      else u8g.setColorIndex(ui.theme_color(1)); // solid text
     #endif
 
     if (!PAGE_CONTAINS(row_y1, row_y2)) return false;
@@ -536,12 +536,12 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
     const u8g_uint_t prop = USE_WIDE_GLYPH ? 2 : 1;
     const pixel_len_t bw = len * prop * (MENU_FONT_WIDTH), bx = x * prop * (MENU_FONT_WIDTH);
     if (inv) {
-      u8g.setColorIndex(1);
+      u8g.setColorIndex(ui.theme_color(1));
       u8g.drawBox(bx / prop - 1, by - (MENU_FONT_ASCENT), bw + 2, MENU_FONT_HEIGHT);
-      u8g.setColorIndex(0);
+      u8g.setColorIndex(ui.theme_color(0));
     }
     lcd_put_u8str(bx / prop, by, fstr);
-    if (inv) u8g.setColorIndex(1);
+    if (inv) u8g.setColorIndex(ui.theme_color(1));
   }
 
   void MenuItem_confirm::draw_select_screen(FSTR_P const yes, FSTR_P const no, const bool yesno, FSTR_P const fpre, const char * const string/*=nullptr*/, FSTR_P const suff/*=nullptr*/) {
@@ -588,17 +588,17 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Clear the Mesh Map
 
       if (PAGE_CONTAINS(y_offset - 2, y_offset + y_map_pixels + 4)) {
-        u8g.setColorIndex(1);  // First draw the bigger box in White so we have a border around the mesh map box
+        u8g.setColorIndex(ui.theme_color(1));  // First draw the bigger box in White so we have a border around the mesh map box
         u8g.drawBox(x_offset - 2, y_offset - 2, x_map_pixels + 4, y_map_pixels + 4);
         if (PAGE_CONTAINS(y_offset, y_offset + y_map_pixels)) {
-          u8g.setColorIndex(0);  // Now actually clear the mesh map box
+          u8g.setColorIndex(ui.theme_color(0));  // Now actually clear the mesh map box
           u8g.drawBox(x_offset, y_offset, x_map_pixels, y_map_pixels);
         }
       }
 
       // Display Mesh Point Locations
 
-      u8g.setColorIndex(1);
+      u8g.setColorIndex(ui.theme_color(1));
       const u8g_uint_t sx = x_offset + pixels_per_x_mesh_pnt / 2;
             u8g_uint_t  y = y_offset + pixels_per_y_mesh_pnt / 2;
       for (uint8_t j = 0; j < (GRID_MAX_POINTS_Y); j++, y += pixels_per_y_mesh_pnt)
@@ -621,7 +621,7 @@ void MarlinUI::clear_lcd() { } // Automatically cleared by Picture Loop
       // Put Relevant Text on Display
 
       // Show X and Y positions at top of screen
-      u8g.setColorIndex(1);
+      u8g.setColorIndex(ui.theme_color(1));
       if (PAGE_UNDER(7)) {
         const xy_pos_t pos = { bedlevel.get_mesh_x(x_plot), bedlevel.get_mesh_y(y_plot) },
                        lpos = pos.asLogical();

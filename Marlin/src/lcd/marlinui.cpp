@@ -1153,7 +1153,11 @@ void MarlinUI::init() {
               drawing_screen = first_page = true; // Flag as drawing pages
             }
             set_font(FONT_MENU);                  // Setup font for every page draw
-            u8g.setColorIndex(1);                 // And reset the color
+            if (ui_theme_inverted(theme_index)) { // Dark theme: paint the page's physical background
+              u8g.setColorIndex(1);
+              u8g.drawBox(0, 0, LCD_PIXEL_WIDTH, LCD_PIXEL_HEIGHT);
+            }
+            u8g.setColorIndex(theme_color(1));    // And reset the color
             run_current_screen();                 // Draw and process the current screen
             first_page = false;
 

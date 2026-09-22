@@ -46,6 +46,7 @@
 #include "theme_assets/ui_theme_reskin.h"
 #include "theme_assets/ui_theme_layout2.h"
 #include "theme_assets/ui_theme_stock_inverted.h"
+#include "theme_assets/ui_theme_mainmenu_grid.h"
 
 const char* const ui_theme_names[UI_THEME_INDEX_COUNT] = {
   "Stock",         "Stock (Dark)",

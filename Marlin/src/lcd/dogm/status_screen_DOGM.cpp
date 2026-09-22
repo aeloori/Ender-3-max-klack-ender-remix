@@ -259,7 +259,7 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
     #elif ANIM_HOTEND
       // This whole file only compiles under HAS_MARLINUI_U8GLIB, so the
       // theme tables from ui_theme.h are always available here.
-      #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr((S) ? &ui_theme_hotend_on_bmp[ui.theme_index] : &ui_theme_hotend_off_bmp[ui.theme_index])
+      #define HOTEND_BITMAP(N,S) (unsigned char*)pgm_read_ptr((S) ? &ui_theme_hotend_on_bmp[ui_theme_base_index(ui.theme_index)] : &ui_theme_hotend_off_bmp[ui_theme_base_index(ui.theme_index)])
     #else
       #define HOTEND_BITMAP(N,S) status_hotend_a_bmp
     #endif
@@ -307,9 +307,9 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_HOTEND && HOTEND_DOT && PAGE_CONTAINS(17, 19)) {
-      u8g.setColorIndex(0); // set to white on black
+      u8g.setColorIndex(ui.theme_color(0)); // set to white on black
       u8g.drawBox(tx, 20 - 3, 2, 2);
-      u8g.setColorIndex(1); // restore black on white
+      u8g.setColorIndex(ui.theme_color(1)); // restore black on white
     }
 
   }
@@ -375,9 +375,9 @@ FORCE_INLINE void _draw_centered_temp(const celsius_t temp, const uint8_t tx, co
       _draw_centered_temp(temp, tx, 28);
 
     if (STATIC_BED && BED_DOT && PAGE_CONTAINS(17, 19)) {
-      u8g.setColorIndex(0); // set to white on black
+      u8g.setColorIndex(ui.theme_color(0)); // set to white on black
       u8g.drawBox(tx, 20 - 2, 2, 2);
-      u8g.setColorIndex(1); // restore black on white
+      u8g.setColorIndex(ui.theme_color(1)); // restore black on white
     }
 
   }
@@ -567,7 +567,7 @@ void MarlinUI::draw_status_screen() {
   #if DO_DRAW_LOGO
     if (PAGE_CONTAINS(STATUS_LOGO_Y, STATUS_LOGO_Y + STATUS_LOGO_HEIGHT - 1))
       u8g.drawBitmapP(STATUS_LOGO_X, STATUS_LOGO_Y, STATUS_LOGO_BYTEWIDTH, STATUS_LOGO_HEIGHT,
-                       (unsigned char*)pgm_read_ptr(&ui_theme_status_logo_bmp[ui.theme_index]));
+                       (unsigned char*)pgm_read_ptr(&ui_theme_status_logo_bmp[ui_theme_base_index(ui.theme_index)]));
   #endif
 
   #if STATUS_HEATERS_WIDTH
@@ -595,7 +595,7 @@ void MarlinUI::draw_status_screen() {
           ? (planner.leveling_active ? status_bed_leveled_on_bmp : status_bed_on_bmp) \
           : (planner.leveling_active ? status_bed_leveled_bmp : status_bed_bmp))
       #else
-        #define BED_BITMAP(S) (unsigned char*)pgm_read_ptr((S) ? &ui_theme_bed_on_bmp[ui.theme_index] : &ui_theme_bed_off_bmp[ui.theme_index])
+        #define BED_BITMAP(S) (unsigned char*)pgm_read_ptr((S) ? &ui_theme_bed_on_bmp[ui_theme_base_index(ui.theme_index)] : &ui_theme_bed_off_bmp[ui_theme_base_index(ui.theme_index)])
       #endif
     #else
       #define BED_BITMAP(S) status_bed_bmp
@@ -640,7 +640,7 @@ void MarlinUI::draw_status_screen() {
           status_fan0_bmp
         #elif STATUS_FAN_FRAMES > 1
           (unsigned char*)pgm_read_ptr(
-            (blink && thermalManager.fan_speed[0]) ? &ui_theme_fan1_bmp[ui.theme_index] : &ui_theme_fan0_bmp[ui.theme_index])
+            (blink && thermalManager.fan_speed[0]) ? &ui_theme_fan1_bmp[ui_theme_base_index(ui.theme_index)] : &ui_theme_fan0_bmp[ui_theme_base_index(ui.theme_index)])
         #else
           status_fan0_bmp
         #endif
@@ -785,7 +785,7 @@ void MarlinUI::draw_status_screen() {
     if (PAGE_CONTAINS(XYZ_BASELINE - (INFO_FONT_ASCENT - 1), XYZ_BASELINE)) {
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
-        u8g.setColorIndex(0); // white on black
+        u8g.setColorIndex(ui.theme_color(0)); // white on black
       #endif
 
       #if HAS_DUAL_MIXING
@@ -834,7 +834,7 @@ void MarlinUI::draw_status_screen() {
       TERN_(HAS_Z_AXIS, _draw_axis_value(Z_AXIS, zstring, blink));
 
       #if NONE(XYZ_NO_FRAME, XYZ_HOLLOW_FRAME)
-        u8g.setColorIndex(1); // black on white
+        u8g.setColorIndex(ui.theme_color(1)); // black on white
       #endif
     }
   }

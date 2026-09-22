@@ -35,6 +35,11 @@
 #include "../../module/stepper.h"
 #include "../../sd/cardreader.h"
 
+#if HAS_MARLINUI_U8GLIB
+  #include "../dogm/marlinui_DOGM.h"
+  #include "../dogm/ui_theme.h"
+#endif
+
 #if ENABLED(PSU_CONTROL)
   #include "../../feature/power.h"
 #endif
@@ -232,8 +237,89 @@ void menu_configuration();
   #endif
 #endif
 
+#if HAS_MARLINUI_U8GLIB
+
+  // Icon-grid Main Menu, used instead of the list menu_main() below when a
+  // Reskin/Layout2 UI theme is active (see the dispatch at the top of
+  // menu_main()). Reuses ui.encoderPosition/lcd_clicked directly instead of
+  // the START_MENU/SUBMENU list-item macros, since those only know how to
+  // lay items out as stacked rows. Covers the common idle-state entries for
+  // this printer; while a print is active, menu_main() falls back to the
+  // normal list (Tune/Pause/Stop and friends change too much to justify a
+  // second grid layout for that state).
+  struct MainMenuGridTile {
+    const unsigned char *icon;
+    FSTR_P label;
+    screenFunc_t action;
+  };
+
+  void _grid_goto_media()   { if (card.isMounted() && !card.isFileOpen()) ui.goto_screen(MEDIA_MENU_GATEWAY); }
+  void _grid_goto_motion()  { ui.goto_screen(menu_motion); }
+  void _grid_goto_temp()    { ui.goto_screen(menu_temperature); }
+  void _grid_goto_config()  { ui.goto_screen(menu_configuration); }
+  #if ENABLED(ADVANCED_PAUSE_FEATURE)
+    void _grid_goto_filament() { ui.goto_screen(menu_change_filament); }
+  #endif
+  #if ENABLED(LCD_INFO_MENU)
+    void _grid_goto_info() { ui.goto_screen(menu_info); }
+  #endif
+
+  void menu_main_grid() {
+    static const MainMenuGridTile tiles[] = {
+      { grid_icon_home_bmp,     F("Back"),   ui.return_to_status },
+      { grid_icon_print_bmp,    F("Print"),  _grid_goto_media },
+      { grid_icon_motion_bmp,   F("Motion"), _grid_goto_motion },
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        { grid_icon_filament_bmp, F("Change"), _grid_goto_filament },
+      #endif
+      { grid_icon_temp_bmp,     F("Temp"),   _grid_goto_temp },
+      { grid_icon_config_bmp,   F("Config"), _grid_goto_config },
+      #if ENABLED(LCD_INFO_MENU)
+        { grid_icon_info_bmp,   F("Info"),   _grid_goto_info },
+      #endif
+    };
+    constexpr uint8_t GRID_COLS = 4, GRID_COUNT = COUNT(tiles);
+    constexpr uint8_t TILE_W = LCD_PIXEL_WIDTH / GRID_COLS,
+                       TILE_H = LCD_PIXEL_HEIGHT / ((GRID_COUNT + GRID_COLS - 1) / GRID_COLS);
+
+    static int8_t sel = 0;
+    if (ui.encoderPosition) {
+      const int8_t delta = int8_t(ui.encoderPosition);
+      ui.encoderPosition = 0;
+      sel = (sel + delta) % GRID_COUNT;
+      if (sel < 0) sel += GRID_COUNT;
+      ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    }
+
+    if (ui.use_click()) { tiles[sel].action(); return; }
+
+    for (uint8_t i = 0; i < GRID_COUNT; ++i) {
+      const uint8_t col = i % GRID_COLS, row = i / GRID_COLS;
+      const uint8_t x0 = col * TILE_W, y0 = row * TILE_H;
+      if (!PAGE_CONTAINS(y0, y0 + TILE_H - 1)) continue;
+
+      u8g.setColorIndex(ui.theme_color(1));
+      if (i == sel) u8g.drawFrame(x0 + 1, y0 + 1, TILE_W - 2, TILE_H - 2);
+
+      const uint8_t icon_x = x0 + (TILE_W - UI_GRID_ICON_WIDTH) / 2,
+                    icon_y = y0 + 2;
+      u8g.drawBitmapP(icon_x, icon_y, (UI_GRID_ICON_WIDTH + 7) / 8, UI_GRID_ICON_HEIGHT, tiles[i].icon);
+
+      const uint8_t label_w = utf8_strlen(tiles[i].label) * (MENU_FONT_WIDTH),
+                    label_x = x0 + (label_w < TILE_W ? (TILE_W - label_w) / 2 : 0);
+      lcd_put_u8str(label_x, y0 + TILE_H - 2, tiles[i].label);
+    }
+  }
+
+#endif // HAS_MARLINUI_U8GLIB
+
 void menu_main() {
   const bool busy = printingIsActive();
+
+  #if HAS_MARLINUI_U8GLIB
+    if (!busy && ui_theme_id(ui.theme_index) != UI_THEME_STOCK) { menu_main_grid(); return; }
+  #endif
+
   #if HAS_MEDIA
     const bool card_detected = card.isMounted(),
                card_open = card_detected && card.isFileOpen();
